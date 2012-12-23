@@ -1,0 +1,34 @@
+{
+  "name": "gitmapping",
+  "description": "Mapping files and folders to your apps from git repositories.",
+  "version": "0.1.0",
+  "homepage": "https://github.com/amazingSurge/gitmapping",
+  "author": {
+    "name": "amazingSurge",
+    "email": "amazingSurge@yahoo.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:amazingSurge/gitmapping.git"
+  },
+  "bugs": {
+    "url": "https://github.com/amazingSurge/gitmapping/issues"
+  },
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "https://github.com/amazingSurge/gitmapping/blob/master/LICENSE-MIT"
+    }
+  ],
+  "main": "lib/gitmapping",
+  "engines": {
+    "node": ">= 0.6.0"
+  },
+  "scripts": {
+    "test": "grunt test"
+  },
+  "devDependencies": {
+    "grunt": "~0.3.15"
+  },
+  "keywords": []
+}

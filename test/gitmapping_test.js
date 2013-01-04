@@ -1,34 +1,17 @@
-var gitmapping = require('../lib/gitmapping.js');
+process.env.NODE_ENV = 'test';
+var assert = require('assert');
+var gitmapping =  require("../lib/gitmapping");
+gitmapping.find_meta("../bin",function(err,data){
+	assert.ok(!err);
+});
 
-/*
-  ======== A Handy Little Nodeunit Reference ========
-  https://github.com/caolan/nodeunit
+gitmapping.add("git","tests","/home/yuyang/testlib",{type:"dir"});
+var rnameInfo = gitmapping.rname("git","gits");
+assert.ok(rnameInfo);
+var rmInfo = gitmapping.rm("gits");
+assert.ok(rmInfo);
 
-  Test methods:
-    test.expect(numAssertions)
-    test.done()
-  Test assertions:
-    test.ok(value, [message])
-    test.equal(actual, expected, [message])
-    test.notEqual(actual, expected, [message])
-    test.deepEqual(actual, expected, [message])
-    test.notDeepEqual(actual, expected, [message])
-    test.strictEqual(actual, expected, [message])
-    test.notStrictEqual(actual, expected, [message])
-    test.throws(block, [error], [message])
-    test.doesNotThrow(block, [error], [message])
-    test.ifError(value)
-*/
-
-exports['awesome'] = {
-  setUp: function(done) {
-    // setup here
-    done();
-  },
-  'no args': function(test) {
-    test.expect(1);
-    // tests here
-    test.equal(gitmapping.awesome(), 'awesome', 'should be awesome.');
-    test.done();
-  }
-};
+gitmapping.sync_meta("../bin",function(err,data){
+	console.log(err);
+	assert.ok(!err);
+})

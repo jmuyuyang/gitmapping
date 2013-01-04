@@ -6,23 +6,24 @@ Mapping files and folders to your apps from git repositories.
 Install the module with: `npm install gitmapping`
 
 ## Documentation
+###API 
 ```javascript
 var gitmapping = require('gitmapping');
-gitmapping.init(repository, directory, options);
-gitmapping.add(name, source, target, options);
-gitmapping.run(rule, options, callback);
+gitmapping.init(repo_url,repo_name,branch,callback)
+gitmapping.add(name,repo_name,source, target, options);
+gitmapping.run(rule,callback);
 ```
-
+###read or sync rules on .gitmapping.json
+```javascript
+gitmapping.find_meta(dir,callback);
+gitmapping.sync_meta(dir,callback);
+```
+###command
 ```bash
-gitmapping init [--branch] [--commit] <repository> <directory>
-gitmapping rule add [-d] <name> <source> <target> [--ignore]
-gitmapping rule rename <old> <new>
-gitmapping rule rm <name>
-gitmapping config repository <value>
-gitmapping config branch <value>
-gitmapping config commit <value>
-gitmapping config auth.user <value>
-gitmapping config auth.password <value>
+gitmapping init <repository> [-s repo_name] [-b branch] [-v version]   
+gitmapping rule add [-s repo_name] [-d] <name> <source> <target> [-a allow] [-i ignore]  
+gitmapping rule rename <old> <new>  
+gitmapping rule rm <name>  
 gitmapping run <rule>
 ```
 

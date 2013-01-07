@@ -23,7 +23,7 @@ program
   .usage(usageString)
   .option('-s, --source [source]', 'source name of the repository for gitmapping')
   .option('-b, --branch [branch]', 'branch of the repository for gitmapping init')
-  .option('-v, --version [version]', 'version(commit or tag) for the repository')
+  .option('-v, --versions [versions]', 'version(commit or tag) for the repository')
   .option('-d, --dir','set the file type for maping rules')
   .option('-a, --allow [allow]', 'filter rules for maping files')
   .option('-i, --ignore [ingore]', 'filter rules for maping files')
@@ -59,6 +59,26 @@ mapping.prototype.init = function(){
 	});
 };
 
+mapping.prototype.update = function(){
+	var name = this.args[1];
+	var version = program.versions;
+	if(!version) return logule.warn("nothing will be update");
+	gitmapping.find_meta(process.cwd(),function(err,data){
+		if(err) return logule.error(err);
+		var update = gitmapping.update(name,version);
+		if(update){
+			gitmapping.sync_meta(process.cwd(),function(err,result){
+				if(err) return logule.error(err);
+				logule.info("update mapping rule "+name);
+				logule.info("update .gitmapping.json");
+			});
+		}else{
+			logule.error("cannot find rule "+name);
+		}
+	})
+	
+};
+
 mapping.prototype.add = function(){
 	var name = this.args[1];
 	var source = this.args[2];
@@ -78,7 +98,7 @@ mapping.prototype.add = function(){
 			type:"file"
 		};
 	}
-	options.version = program.version;
+	options.version = program.versions;
 	if(!name || !source || !target){
 		return logule.error("few arguments for add mapping rules");
 	};
@@ -146,6 +166,10 @@ if(program.args.length > 0){
 		}
 		case "add":{
 			map.add();
+			break;
+		}
+		case "update":{
+			map.update();
 			break;
 		}
 		case "rm":{

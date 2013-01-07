@@ -20,8 +20,9 @@ gitmapping.sync_meta(dir,callback);
 ```
 ###command
 ```bash
-gitmapping init <repository> [-s repo_name] [-b branch] [-v version]   
-gitmapping rule add [-s repo_name] [-d] <name> <source> <target> [-a allow] [-i ignore]  
+gitmapping init <repository> [-s repo_name] [-b branch]   
+gitmapping rule add [-s repo_name] [-d] <name> <source> <target> [-a allow] [-i ignore] [-v version]
+gitmapping update <rule> [-v version] 
 gitmapping rule rename <old> <new>  
 gitmapping rule rm <name>  
 gitmapping run <rule>

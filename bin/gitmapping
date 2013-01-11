@@ -6,11 +6,11 @@ var gitmapping = require('../lib/gitmapping');
 var meta = require("../lib/meta");
 var fs = require("fs");
 var usages = [
-  'init               - init git repo <remote-url> <--branch> <--version>',
-  'add                - add git maping rules <name> <source> <target> <allow> <deny>',
-  'rm                 - remove git maping rules <name>',
-  'rname              - rname git maping rules <old name> <new name>',
-  'run                - run and mapping the rule <name>'
+  'init       - init git repo <remote-url> <--branch> <--version>           ',
+  'add        - add git maping rules <name> <source> <target> <allow> <deny>',
+  'rm         - remove git maping rules <name>',
+  'rname      - rname git maping rules <old name> <new name>',
+  'run        - run and mapping the rule <name>'
 ];
 
 var usageString = usages.reduce(function(result, item, i) {
@@ -27,6 +27,7 @@ program
   .option('-d, --dir','set the file type for maping rules')
   .option('-a, --allow [allow]', 'filter rules for maping files')
   .option('-i, --ignore [ingore]', 'filter rules for maping files')
+  .option('-u, --update','update the repository before running the rule')
   .parse(process.argv);
 
 
@@ -37,43 +38,59 @@ var mapping = function(args){
 mapping.prototype.init = function(){
 	var remoteUrl = this.args[1];
 	var branch = program.branch?program.branch:"master";
+	var source_list = remoteUrl.split("/");
+	var sources = source_list[source_list.length-1].match("(.*).git");
+	if(!sources) return logule.error("repository url is not correct");
 	if(!program.source){
-		var source_list = remoteUrl.split("/");
-		var source = source_list[source_list.length-1].match("(.*).git")[1];
+		var source = sources[1];
 	}else{
 		var source = program.source;
 	}
+	console.log("fetching repository.....this may take a few minutes");
 	gitmapping.init(remoteUrl,source,branch,function(err,data){
 		if(err) {logule.error(err);return;}
 		if(data) console.log(data);
-		logule.info("fetch remote repository from "+remoteUrl+" in /tmp/"+source);
-		meta.find(process.cwd(),function(err){
+		logule.info("fetch remote repository from "+remoteUrl+" in /tmp/gitmapping/"+source);
+		meta.find(process.cwd(),function(err,data){
 			if(err) {
 				logule.warn(err);
-				meta.sync(process.cwd(),{},function(err){
-					if(err) logule.info(err);
-					logule.info("init .gitmapping.json file");
-				})
+				logule.info("init .gitmapping.json file");
 			}
+			if(!data){ 
+				data = {
+					"repos":{
+					},
+					"rules":{
+					}
+				};
+			}
+			data['repos'][source] = {
+				url:remoteUrl,
+				branch:branch
+			};
+			meta.sync(process.cwd(),data,function(err){
+				if(err) logule.info(err);
+				logule.info("add repository "+source+" in .gitmapping.json")	
+			})
 		});
 	});
 };
 
-mapping.prototype.update = function(){
-	var name = this.args[1];
-	var version = program.versions;
-	if(!version) return logule.warn("nothing will be update");
+mapping.prototype.config = function(){
+	var config = this.args[1].split(".");
+	if(config.length != 2) return logule.error("cannot update config "+this.args[1]);
+	var name = this.args[2];
+	var val = this.args[3];
 	gitmapping.find_meta(process.cwd(),function(err,data){
 		if(err) return logule.error(err);
-		var update = gitmapping.update(name,version);
+		var update = gitmapping.update(config[0],config[1],name,val);
 		if(update){
 			gitmapping.sync_meta(process.cwd(),function(err,result){
 				if(err) return logule.error(err);
-				logule.info("update mapping rule "+name);
-				logule.info("update .gitmapping.json");
+				logule.info("update "+name+" config "+config[1]);
 			});
 		}else{
-			logule.error("cannot find rule "+name);
+			return logule.error("cannot update "+config[0]+" config");
 		}
 	})
 	
@@ -82,29 +99,32 @@ mapping.prototype.update = function(){
 mapping.prototype.add = function(){
 	var name = this.args[1];
 	var source = this.args[2];
-	var target = this.args[3];
+	if(this.args[3] == "/"){
+		var target = process.cwd();
+	}else{
+		var target = process.cwd()+"/"+this.args[3];
+	}
+	if(!name || !source || !target){
+		return logule.error("few arguments for add mapping rules");
+	}
 	if(!program.source){
 		return logule.error("please define the source name for the repository");
 	}
-	var repo_name = program.source;
 	if(program.dir){
 		var options = {
 			type:"dir",
-			allow:program.allow,
-			deny:program.deny
+			allow:program.allow?program.allow:null,
+			deny:program.deny?program.deny:null
 		};
 	}else{
 		var options = {
 			type:"file"
 		};
 	}
-	options.version = program.versions;
-	if(!name || !source || !target){
-		return logule.error("few arguments for add mapping rules");
-	};
+	options.version = program.versions?program.version:null;
 	gitmapping.find_meta(process.cwd(),function(err,data){
 		if(err) return logule.error(err);
-		gitmapping.add(name,repo_name,source,target,options);
+		gitmapping.add(name,program.source,source,target,options);
 		gitmapping.sync_meta(process.cwd(),function(err,result){
 			if(err) return logule.error(err);
 			logule.info("add mapping rule "+name);
@@ -147,9 +167,10 @@ mapping.prototype.rname = function(){
 }
 
 mapping.prototype.run = function(){
-	var rule = this.args[1];
+	var rules = this.args[1]?this.args[1].split(","):null;
 	var dir = process.cwd();
-	gitmapping.runWithFile(dir,rule,function(err,result){
+	var updateRepo = program.update?1:0;
+	gitmapping.runWithFile(dir,rules,updateRepo,function(err,result){
 		if(err) return logule.error(err);
 		logule.info(result);
 	});
@@ -168,8 +189,8 @@ if(program.args.length > 0){
 			map.add();
 			break;
 		}
-		case "update":{
-			map.update();
+		case "config":{
+			map.config();
 			break;
 		}
 		case "rm":{
@@ -183,6 +204,9 @@ if(program.args.length > 0){
 		case "run":{
 			map.run();
 			break;
+		}
+		default:{
+			logule.error("command is not exists")
 		}
 	}	
 }

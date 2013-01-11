@@ -4,8 +4,8 @@
   "version": "0.1.0",
   "homepage": "https://github.com/amazingSurge/gitmapping",
   "author": {
-    "name": "amazingSurge",
-    "email": "amazingSurge@yahoo.com"
+    "name": "yuyang",
+    "email": "jmuljy@163.com"
   },
   "repository": {
     "type": "git",
@@ -27,6 +27,11 @@
   "scripts": {
     "test": "grunt test"
   },
+  "dependencies":{
+	"async":">v0.1.15",
+	"logule":"v2.0.0",
+	"commander":"v1.1.1"
+   },
   "devDependencies": {
     "grunt": "~0.3.15"
   },

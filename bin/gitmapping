@@ -71,7 +71,7 @@ mapping.prototype.init = function(){
 			meta.sync(process.cwd(),data,function(err){
 				if(err) logule.info(err);
 				logule.info("add repository "+source+" in .gitmapping.json")	
-			})
+			});
 		});
 	});
 };

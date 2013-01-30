@@ -6,6 +6,10 @@ git.fetchRepo("https://github.com/jmuyuyang/php-yaf.git","master",function(err,d
 	assert.ok(!err);
 });
 
+git.diffStat("php-yaf",function(err,data){
+	assert.ok(!err);
+})
+
 git.cpFile(null,"yaf.php","/tmp/php-yaf/yafs.php",function(err,data){
 	assert.ok(!err);
 });

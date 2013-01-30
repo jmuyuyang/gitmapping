@@ -1,0 +1,29 @@
+{
+	"repos": {
+		"Consistency-of-Hashi": {
+			"url": "https://github.com/jmuyuyang/Consistency-of-Hashi.git",
+			"branch": "master",
+			"commit": "24d7a04fda027f3feb1f99d6b8cad0a808117f3a"
+		}
+	},
+	"rules": {
+		"cons": {
+			"repo": "Consistency-of-Hashi",
+			"source": "/",
+			"target": "/home/yuyang/gitmaping/bin/k",
+			"options": {
+				"type": "dir",
+				"version": null
+			}
+		},
+		"maps": {
+			"repo": "Consistency-of-Hashi",
+			"source": "/",
+			"target": "/home/yuyang/gitmaping/bin",
+			"options": {
+				"type": "file",
+				"version": null
+			}
+		}
+	}
+}

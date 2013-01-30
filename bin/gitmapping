@@ -2,9 +2,11 @@
 var path = require("path");
 var program = require('commander');
 var logule = require("logule").init(module);
+var async = require("async");
 var gitmapping = require('../lib/gitmapping');
 var meta = require("../lib/meta");
 var fs = require("fs");
+
 var usages = [
   'init       - init git repo <remote-url> <--branch> <--version>           ',
   'add        - add git maping rules <name> <source> <target> <allow> <deny>',
@@ -47,32 +49,24 @@ mapping.prototype.init = function(){
 		var source = program.source;
 	}
 	console.log("fetching repository.....this may take a few minutes");
-	gitmapping.init(remoteUrl,source,branch,function(err,data){
-		if(err) {logule.error(err);return;}
-		if(data) console.log(data);
-		logule.info("fetch remote repository from "+remoteUrl+" in /tmp/gitmapping/"+source);
-		meta.find(process.cwd(),function(err,data){
-			if(err) {
-				logule.warn(err);
-				logule.info("init .gitmapping.json file");
-			}
-			if(!data){ 
-				data = {
-					"repos":{
-					},
-					"rules":{
-					}
-				};
-			}
-			data['repos'][source] = {
-				url:remoteUrl,
-				branch:branch
-			};
-			meta.sync(process.cwd(),data,function(err){
-				if(err) logule.info(err);
-				logule.info("add repository "+source+" in .gitmapping.json")	
-			});
-		});
+	async.series([
+		function(callback){
+			gitmapping.find_meta(process.cwd(),callback);
+		},
+		function(callback){
+			gitmapping.init(source,remoteUrl,branch,callback);
+		},
+		function(callback){
+			gitmapping.configRepo(source,remoteUrl,branch);
+			gitmapping.updateRepo(source,callback);
+		},
+		function(callback){
+			logule.info("fetch remote repository from "+remoteUrl+" in /tmp/gitmapping/"+source);
+			gitmapping.sync_meta(process.cwd(),callback);
+		}
+	],function(err,data){
+		if(err) return logule.error(err);
+		logule.info("add repository "+source+" in .gitmapping.json");	
 	});
 };
 
@@ -81,20 +75,38 @@ mapping.prototype.config = function(){
 	if(config.length != 2) return logule.error("cannot update config "+this.args[1]);
 	var name = this.args[2];
 	var val = this.args[3];
-	gitmapping.find_meta(process.cwd(),function(err,data){
-		if(err) return logule.error(err);
-		var update = gitmapping.update(config[0],config[1],name,val);
-		if(update){
-			gitmapping.sync_meta(process.cwd(),function(err,result){
-				if(err) return logule.error(err);
-				logule.info("update "+name+" config "+config[1]);
-			});
-		}else{
-			return logule.error("cannot update "+config[0]+" config");
+	async.series([
+		function(callback){
+			gitmapping.find_meta(process.cwd(),callback);
+		},
+		function(callback){
+			var update = gitmapping.update(config[0],config[1],name,val);
+			if(update){
+				gitmapping.sync_meta(process.cwd(),callback);
+			}else{
+				callback("cannot update "+config[0]+" config");
+			}
 		}
-	})
-	
+	],function(err,data){
+		if(err) return logule.error(err);
+		logule.info("update "+name+" config "+config[1]);
+	});	
 };
+
+mapping.prototype.check = function(){
+	var name = this.args[1];
+	async.series([
+		function(callback){
+			gitmapping.find_meta(process.cwd(),callback);
+		},
+		function(callback){
+			gitmapping.diffStat(name,callback);
+		}
+	],function(err,data){
+		if(err) return logule.error(err);
+		console.log(data[1]);
+	})
+}
 
 mapping.prototype.add = function(){
 	var name = this.args[1];
@@ -108,7 +120,7 @@ mapping.prototype.add = function(){
 		return logule.error("few arguments for add mapping rules");
 	}
 	if(!program.source){
-		return logule.error("please define the source name for the repository");
+		return logule.error("please use -s define the source name for the repository");
 	}
 	if(program.dir){
 		var options = {
@@ -122,48 +134,60 @@ mapping.prototype.add = function(){
 		};
 	}
 	options.version = program.versions?program.version:null;
-	gitmapping.find_meta(process.cwd(),function(err,data){
+	async.series([
+		function(callback){
+			gitmapping.find_meta(process.cwd(),callback);
+		},
+		function(callback){
+			gitmapping.add(name,program.source,source,target,options);
+			gitmapping.sync_meta(process.cwd(),callback);
+		}
+	],function(err,data){
 		if(err) return logule.error(err);
-		gitmapping.add(name,program.source,source,target,options);
-		gitmapping.sync_meta(process.cwd(),function(err,result){
-			if(err) return logule.error(err);
-			logule.info("add mapping rule "+name);
-			logule.info("update .gitmapping.json");
-		});
+		logule.info("add mapping rule "+name);
+		logule.info("update .gitmapping.json");
 	});
 }
 
 mapping.prototype.rm = function(){
 	var name = this.args[1];
-	gitmapping.find_meta(process.cwd(),function(err,data){
-		if(err) return logule.error(err);
-		var rmInfo = gitmapping.rm(name);
-		if(rmInfo){
-			gitmapping.sync_meta(process.cwd(),function(err,data){
-				if(err) return logule.info(err);
-				return logule.info("rm rule "+name);
-			});
-		}else{
-			logule.error("cannot find rule "+name);
+	async.series([
+		function(callback){
+			gitmapping.find_meta(process.cwd(),callback);
+		},
+		function(callback){
+			var rmInfo = gitmapping.rm(name);
+			if(rmInfo){
+				gitmapping.sync_meta(process.cwd(),callback);
+			}else{
+				callback("cannot find rule "+name);
+			}
 		}
-	});
+	],function(err,data){
+		if(err) return logule.error(err);
+		logule.info("rm rule "+name);
+	});	
 }
 
 mapping.prototype.rname = function(){
 	var old_name = this.args[1];
 	var new_name = this.args[2];
-	gitmapping.find_meta(process.cwd(),function(err,data){
-		if(err) return logule.error(err);
-		var rnameInfo = gitmapping.rname(old_name,new_name);
-		if(rnameInfo){
-			gitmapping.sync_meta(process.cwd(),function(err,data){
-				if(err) return logule.info(err);
-				return logule.info("rname rule "+old_name+" to "+new_name);
-			});
-		}else{
-			logule.error("cannot find rule "+old_name);
+	async.series([
+		function(callback){
+			gitmapping.find_meta(process.cwd(),callback);
+		},
+		function(callback){
+			var rnameInfo = gitmapping.rname(old_name,new_name);
+			if(rnameInfo){
+				gitmapping.sync_meta(process.cwd(),callback);
+			}else{
+				callback("cannot find rule "+old_name);
+			}
 		}
-	});
+	],function(err,data){
+		if(err) return logule.error(err);
+		logule.info("rname rule "+old_name+" to "+new_name);
+	});	
 }
 
 mapping.prototype.run = function(){
@@ -172,7 +196,8 @@ mapping.prototype.run = function(){
 	var updateRepo = program.update?1:0;
 	gitmapping.runWithFile(dir,rules,updateRepo,function(err,result){
 		if(err) return logule.error(err);
-		logule.info(result);
+		if(updateRepo) logule.info(result[1]);
+		else logule.info(result[0]);
 	});
 }
 
@@ -199,6 +224,10 @@ if(program.args.length > 0){
 		}
 		case "rname":{
 			map.rname();
+			break;
+		}
+		case "check":{
+			map.check();
 			break;
 		}
 		case "run":{

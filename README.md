@@ -11,14 +11,12 @@ Install the module with: `npm install gitmapping`
 var gitmapping = require('gitmapping');
 gitmapping.init(repo_url,repo_name,branch,callback)
 gitmapping.add(rule,repo_name,source,target,options);
-@params 
-	the source or target path must use relative path
+(params: the source or target path must use relative path)
 gitmapping.rm(rule);
 gitmapping.rname(old_name,new_name);
 gitmapping.run(rule,callback);
-gitmapping.runWithFile(rule_file,rules,callback)
-@params 
-	rules is rule_list like ["rule1","rule2"]
+gitmapping.runWithFile(rule_file,rules,callback);
+(params: rules is rule_list like ["rule1","rule2"])
 ```
 ###read or sync rules on .gitmapping.json
 ```javascript

@@ -8,11 +8,12 @@ var meta = require("../lib/meta");
 var fs = require("fs");
 
 var usages = [
-  'init       - init git repo <remote-url> <--branch> <--version>           ',
-  'add        - add git maping rules <name> <source> <target> <allow> <deny>',
-  'rm         - remove git maping rules <name>',
-  'rname      - rname git maping rules <old name> <new name>',
-  'run        - run and mapping the rule <name>'
+  'init     - init git repo <remote-url> <--branch> <--version>           ',
+  'add      - add git maping rules <name> <source> <target> <allow> <deny>',
+  'rm       - remove git maping rules <name>',
+  'rname    - rname git maping rules <old name> <new name>',
+  'check    - check <rule> and diff current commit with up-to-date commit',
+  'run      - run and mapping the rule <name>'
 ];
 
 var usageString = usages.reduce(function(result, item, i) {

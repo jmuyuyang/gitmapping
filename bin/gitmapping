@@ -101,6 +101,7 @@ mapping.prototype.check = function(){
 			gitmapping.find_meta(process.cwd(),callback);
 		},
 		function(callback){
+			console.log("updating repository.....this may take a few minutes");
 			gitmapping.diffStat(name,callback);
 		}
 	],function(err,data){

@@ -3,7 +3,7 @@
 Mapping files and folders to your apps from git repositories.
 
 ## Getting Started
-Install the module with: `npm install gitmapping`
+Install the module with: `npm install -g gitmapping`
 
 ## Documentation
 ###api

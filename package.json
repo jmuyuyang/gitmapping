@@ -1,12 +1,22 @@
 {
   "name": "gitmapping",
   "description": "Mapping files and folders to your apps from git repositories.",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "homepage": "https://github.com/amazingSurge/gitmapping",
   "author": {
     "name": "yuyang",
     "email": "jmuljy@163.com"
   },
+  "contributors":[
+	{
+		"name": "yuyang",
+		"email": "jmuljy@163.com"
+	},
+	{
+		"name": "kaptinlin",
+		"email": "kaptinlin@gmail.com"
+	}
+  ],
   "repository": {
     "type": "git",
     "url": "git@github.com:amazingSurge/gitmapping.git"
@@ -27,10 +37,10 @@
   "scripts": {
     "test": "grunt test"
   },
-  "dependencies":{
-    "async":">v0.1.15",
-    "logule":"v2.0.0",
-    "commander":"v1.1.1"
+  "dependencies": {
+    "async": ">v0.1.15",
+    "logule": "v2.0.0",
+    "commander": "v1.1.1"
   },
   "devDependencies": {
     "grunt": "~0.4.1",
@@ -38,5 +48,12 @@
     "grunt-contrib-watch": "~0.2.0",
     "grunt-jsbeautifier": "~0.1.8"
   },
-  "keywords": []
+  "keywords": [],
+  "directories": {
+    "test": "test"
+  },
+  "license": "BSD",
+  "readme": "# gitmapping\n\nMapping files and folders to your apps from git repositories.\n\n## Getting Started\nInstall the module with: `npm install -g gitmapping`\n\n## Documentation\n###api\n```javascript\nvar gitmapping = require('gitmapping');\ngitmapping.init(repo_url,repo_name,branch,callback)\ngitmapping.add(rule,repo_name,source,target,options);\n(params: the source or target path must use relative path)\ngitmapping.rm(rule);\ngitmapping.rname(old_name,new_name);\ngitmapping.run(rule,callback);\ngitmapping.runWithFile(rule_file,rules,callback);\n(params: rules is rule_list like [\"rule1\",\"rule2\"])\n```\n###read or sync rules on .gitmapping.json\n```javascript\ngitmapping.find_meta(dir,callback);\ngitmapping.sync_meta(dir,callback);\n```\n###command\n```bash\ngitmapping init <repository> [-s repo_name] [-b branch]   \ngitmapping add [-s repo_name] [-d] <name> <source> <target> [-a allow] [-i ignore] [-v version]\ngitmapping rename <old> <new>  \ngitmapping rm <name>  \ngitmapping config repo.branch <repo> <branch>  \ngitmapping config rule.version <rule> <version> \ngitmapping check <rule>\ngitmapping run [-u] <rule>\n```\n####help\n```bash\n~gitmapping --help\nUsage: gitmapping init     - init git repo <remote-url> <--branch> <--version>           \n       gitmapping add      - add git maping rules <name> <source> <target> <allow> <deny>\n       gitmapping rm       - remove git maping rules <name>\n       gitmapping rname    - rname git maping rules <old name> <new name>\n       gitmapping check    - check <rule> and diff current commit with up-to-date commit\n       gitmapping run      - run and mapping the rule <name>\nOptions:\n    -h, --help                 output usage information\n    -s, --source [source]      source name of the repository for gitmapping\n    -b, --branch [branch]      branch of the repository for gitmapping init\n    -v, --versions [versions]  version(commit or tag) for the repository\n    -d, --dir                  set the file type for maping rules\n    -a, --allow [allow]        filter rules for maping files\n    -i, --ignore [ingore]      filter rules for maping files\n    -u, --update               update the repository before running the rule\n```  \n\n\n## Examples\n_(Coming soon)_\n\n## Contributing\nIn lieu of a formal styleguide, take care to maintain the existing coding style. Add unit tests for any new or changed functionality. Lint and test your code using [grunt](https://github.com/cowboy/grunt).\n\n## Release History\n_(Nothing yet)_\n\n## License\nCopyright (c) 2012 amazingSurge  \nLicensed under the MIT license.\n",
+  "_id": "gitmapping@0.1.1",
+  "_from": "gitmapping"
 }

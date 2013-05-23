@@ -1,11 +1,24 @@
 {
   "name": "gitmapping",
   "description": "Mapping files and folders to your apps from git repositories.",
-  "version": "0.1.0",
+  "version": "0.1.2",
   "homepage": "https://github.com/amazingSurge/gitmapping",
   "author": {
     "name": "yuyang",
     "email": "jmuljy@163.com"
+  },
+  "contributors":[
+    {
+      "name": "yuyang",
+      "email": "jmuljy@163.com"
+    },
+    {
+      "name": "kaptinlin",
+      "email": "kaptinlin@gmail.com"
+    }
+  ],
+  "bin": {
+    "gitmapping": "bin/gitmapping"
   },
   "repository": {
     "type": "git",
@@ -27,10 +40,10 @@
   "scripts": {
     "test": "grunt test"
   },
-  "dependencies":{
-    "async":">v0.1.15",
-    "logule":"v2.0.0",
-    "commander":"v1.1.1"
+  "dependencies": {
+    "async": ">v0.1.15",
+    "logule": "v2.0.0",
+    "commander": "v1.1.1"
   },
   "devDependencies": {
     "grunt": "~0.4.1",

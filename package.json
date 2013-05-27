@@ -28,12 +28,15 @@
     "test": "grunt test"
   },
   "dependencies":{
-	"async":">v0.1.15",
-	"logule":"v2.0.0",
-	"commander":"v1.1.1"
-   },
+    "async":">v0.1.15",
+    "logule":"v2.0.0",
+    "commander":"v1.1.1"
+  },
   "devDependencies": {
-    "grunt": "~0.3.15"
+    "grunt": "~0.4.1",
+    "grunt-contrib-jshint": "~0.1.1",
+    "grunt-contrib-watch": "~0.2.0",
+    "grunt-jsbeautifier": "~0.1.8"
   },
   "keywords": []
 }

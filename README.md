@@ -31,7 +31,7 @@ gitmapping rename <old> <new>
 gitmapping rm <name>  
 gitmapping config repo.branch <repo> <branch>  
 gitmapping config rule.version <rule> <version> 
-gitmapping check <rule>
+gitmapping diff <type:stat|log> <rule>
 gitmapping run [-u] <rule>
 ```
 ####help

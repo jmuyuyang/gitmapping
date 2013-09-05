@@ -94,19 +94,27 @@ mapping.prototype.config = function(){
 	});	
 };
 
-mapping.prototype.check = function(){
-	var name = this.args[1];
+mapping.prototype.diff = function(){
+	var type = this.args[1];
+	var name = this.args[2]; 
 	async.series([
 		function(callback){
 			gitmapping.find_meta(process.cwd(),callback);
 		},
 		function(callback){
 			console.log("updating repository.....this may take a few minutes");
-			gitmapping.diffStat(name,callback);
+			if(type == "stat"){
+				gitmapping.diffStat(name,callback);
+			}
+			if(type == "log"){
+				gitmapping.diffLog(name,callback);
+			}
 		}
 	],function(err,data){
 		if(err) return logule.error(err);
-		console.log(data[1]);
+		if(data[1]){
+			console.log(data[1]);
+		}
 	})
 }
 
@@ -194,9 +202,9 @@ mapping.prototype.rname = function(){
 
 mapping.prototype.run = function(){
 	var rules = this.args[1]?this.args[1].split(","):null;
-	var dir = process.cwd();
 	var updateRepo = program.update?1:0;
-	gitmapping.runWithFile(dir,rules,updateRepo,function(err,result){
+	var version = program.versions;
+	gitmapping.runWithFile(rules,version,updateRepo,function(err,result){
 		if(err) return logule.error(err);
 		if(updateRepo) logule.info(result[1]);
 		else logule.info(result[0]);
@@ -228,8 +236,8 @@ if(program.args.length > 0){
 			map.rname();
 			break;
 		}
-		case "check":{
-			map.check();
+		case "diff":{
+			map.diff();
 			break;
 		}
 		case "run":{
